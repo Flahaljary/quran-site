@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>القرآن الكريم - مكتبة الصوتيات</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    body {
+      background: #0b1120;
+      color: #f1f5f9;
+      padding: 1rem;
+      padding-bottom: 115px;
+    }
+    .header {
+      background: linear-gradient(135deg, #064e3b, #0f172a);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 14px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .header h1 {
+      font-size: 1.3rem;
+      color: #34d399;
+      margin-bottom: 0.25rem;
+    }
+    .header p {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    .back-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+      text-decoration: none;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: background 0.2s ease;
+    }
+    .back-btn:hover {
+      background: rgba(52, 211, 153, 0.16);
+    }
+    .search-box {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #f8fafc;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      outline: none;
+    }
+    .search-box:focus {
+      border-color: #34d399;
+    }
+    .tracks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.65rem;
+    }
+    .track-item {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 0.85rem 0.75rem;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .track-item:hover {
+      border-color: #34d399;
+      background: #243247;
+    }
+    .track-item.active {
+      background: #065f46;
+      border-color: #34d399;
+      color: #ecfdf5;
+    }
+    .player-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #0f172a;
+      border-top: 1px solid #334155;
+      padding: 0.75rem 1rem;
+      z-index: 20;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+    }
+    .now-playing {
+      font-size: 0.85rem;
+      color: #34d399;
+      margin-bottom: 0.45rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    audio {
+      width: 100%;
+      height: 38px;
+    }
+    .status-note {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 0.85rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>القرآن الكريم</h1>
+      <p>قائمة التلاوات الصوتية (001 - 114)</p>
+    </div>
+    <a class="back-btn" href="index.html">الرئيسية ←</a>
+  </div>
+
+  <input type="text" id="searchInput" class="search-box" placeholder="ابحث برقم الملف مثل 001 أو 018...">
+
+  <div id="tracksGrid" class="tracks"></div>
+  <div id="note" class="status-note">
+    القائمة معروضة من 001.mp3 إلى 114.mp3. تأكد من وجود ملفات الصوت بنفس الاسم في نفس مجلد الصفحة لتشغيلها.
+  </div>
+
+  <div class="player-bar">
+    <div id="nowPlaying" class="now-playing">اختر ملفاً صوتياً لبدء الاستماع</div>
+    <audio id="audioPlayer" controls preload="metadata"></audio>
+  </div>
+
+  <script>
+    const tracksGrid = document.getElementById('tracksGrid');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const nowPlaying = document.getElementById('nowPlaying');
+    const searchInput = document.getElementById('searchInput');
+
+    const files = [];
+    for (let i = 1; i <= 114; i++) {
+      files.push(String(i).padStart(3, '0') + '.mp3');
+    }
+
+    function renderTracks(list) {
+      tracksGrid.innerHTML = '';
+      list.forEach(file => {
+        const btn = document.createElement('div');
+        btn.className = 'track-item';
+        btn.textContent = file;
+        btn.dataset.name = file.toLowerCase();
+
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.track-item').forEach(el => el.classList.remove('active'));
+          btn.classList.add('active');
+          audioPlayer.src = './' + encodeURIComponent(file);
+          nowPlaying.textContent = 'جاري التشغيل: ' + file;
+          audioPlayer.play().catch(() => {
+            nowPlaying.textContent = 'تعذر تشغيل ' + file + ' (تأكد من رفع الملف بنفس الاسم في نفس المجلد)';
+          });
+        });
+
+        tracksGrid.appendChild(btn);
+      });
+    }
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      document.querySelectorAll('.track-item').forEach(item => {
+        item.style.display = item.dataset.name.includes(q) ? '' : 'none';
+      });
+    });
+
+    audioPlayer.addEventListener('error', () => {
+      if (audioPlayer.getAttribute('src')) {
+        nowPlaying.textContent = 'الملف غير متوفر على هذا المسار حالياً.';
+      }
+    });
+
+    audioPlayer.addEventListener('ended', () => {
+      const items = [...document.querySelectorAll('.track-item')];
+      const activeIndex = items.findIndex(el => el.classList.contains('active'));
+      if (activeIndex !== -1 && activeIndex + 1 < items.length) {
+        items[activeIndex + 1].click();
+      }
+    });
+
+    renderTracks(files);
+  </script>
+</body>
+</html>

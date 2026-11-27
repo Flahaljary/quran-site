@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>القرآن الكريم</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    body {
+      background: #0b1120;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      overflow: hidden;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .card {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(160deg, rgba(6, 78, 59, 0.55), rgba(30, 41, 59, 0.88));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .logo {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 0.85rem;
+    }
+    h1 {
+      font-size: 1.45rem;
+      margin-bottom: 0.5rem;
+      color: #34d399;
+    }
+    p {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.85rem 1.2rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1rem;
+      background: #065f46;
+      border: 1px solid #34d399;
+      color: #ecfdf5;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+    .btn:hover {
+      background: #047857;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="card">
+    <svg class="logo" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="45" stroke="#34d399" stroke-width="6"/>
+      <polygon points="50,20 78,70 22,70" fill="#34d399" opacity="0.85"/>
+    </svg>
+
+    <h1>القرآن الكريم</h1>
+    <p>اضغط على الزر بالأسفل للوصول إلى مكتبة الصوتيات.</p>
+
+    <a class="btn" href="player.html">استمع إلى القرآن الكريم</a>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      createParticles();
+    }
+
+    function createParticles() {
+      const count = Math.min(45, Math.max(20, Math.floor((canvas.width * canvas.height) / 28000)));
+      particles = [];
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 1.1,
+          vy: (Math.random() - 0.5) * 1.1,
+          r: Math.random() * 2.5 + 1
+        });
+      }
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#34d399';
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.16)';
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
